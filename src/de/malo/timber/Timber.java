@@ -66,9 +66,13 @@ public class Timber extends JavaPlugin implements Listener {
             canBuild = true;
         }
         if (!e.getPlayer().isSneaking() && canBuild)
-            if (isAxe(e.getPlayer().getInventory().getItemInMainHand()))
-                if (isLog(e.getBlock().getType()))
-                    dropTree(e.getBlock().getLocation(), e.getPlayer());
+            if (e.get) {
+                if (isAxe(e.getPlayer().getInventory().getItemInMainHand()))
+                    if (isLog(e.getBlock().getType()))
+                        dropTree(e.getBlock().getLocation(), e.getPlayer());
+            } else {
+                e.
+            }
 
     }
 
