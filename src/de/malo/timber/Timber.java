@@ -143,6 +143,14 @@ public class Timber extends JavaPlugin implements Listener {
         return plugin;
     }
 
+    /**
+     * determines if the given material is an axe
+     *
+     * @param material the material to check
+     * @return whether it is or not
+     * @author Marc
+     * @since 2020-05-05
+     */
     private boolean isAxe(ItemStack material) {
         boolean isAxe;
         switch (material.getType()) {
@@ -160,6 +168,14 @@ public class Timber extends JavaPlugin implements Listener {
         return isAxe;
     }
 
+    /**
+     * determine is the given material is a log
+     *
+     * @param material the material to check
+     * @return whether it is or not
+     * @author Marc
+     * @since 2020-05-05
+     */
     private boolean isLog(Material material) {
         boolean isLog;
         switch (material) {
