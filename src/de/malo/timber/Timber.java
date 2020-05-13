@@ -29,7 +29,7 @@ import static java.lang.Math.*;
 public class Timber extends JavaPlugin implements Listener {
 
     static boolean withWorldGuard;
-    public HashMap<Player, Boolean> playerStatus;
+    private HashMap<Player, Boolean> playerStatus;
     static CommandToggle toggle;
 
     @Override
@@ -38,13 +38,13 @@ public class Timber extends JavaPlugin implements Listener {
 
         // checks if WorldGuard is installed
         // Todo: make this work without WorldGuard
-        WorldGuardPlugin worldGuard = getWorldGuard();
-        if (worldGuard == null) {
-            getLogger().info("using no WorldGuard");
-            withWorldGuard = false;
-        } else {
+        try {
+            Bukkit.getPluginManager().getPlugin("WorldGuard");
             getLogger().info("using WorldGuard");
             withWorldGuard = true;
+        } catch (UnknownDependencyException e) {
+            getLogger().info("using no WorldGuard");
+            withWorldGuard = false;
         }
 
         // config stuff
@@ -240,7 +240,6 @@ public class Timber extends JavaPlugin implements Listener {
      * @since 2020-05-05
      */
     private @NotNull ItemStack damageItem(@NotNull ItemStack item, Player player, int damage) {
-        // Todo: change damaging behaviour to iterative design to assure good destruction behaviour
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
         // checks for unbreaking and respects it in the damage value
         if (item.containsEnchantment(Enchantment.DURABILITY))
@@ -259,5 +258,16 @@ public class Timber extends JavaPlugin implements Listener {
                     player.getInventory().getItemInMainHand());
         }
         return item;
+    }
+}
+
+
+class myWorldGuard extends  JavaPlugin{
+    public myWorldGuard() {
+        try{
+            Bukkit.getPluginManager().getPlugin("WorldGuard");
+        } catch (UnknownDependencyException e) {
+            getLogger().info("lalala");
+        }
     }
 }
