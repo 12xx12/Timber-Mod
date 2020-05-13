@@ -9,28 +9,35 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 public class CommandToggle implements CommandExecutor {
-    private HashMap<String, Boolean> playerStatus;
+
+    private HashMap<Player, Boolean> playerStatus;
+
+    public CommandToggle() {
+        this.playerStatus = new HashMap<>();
+    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             setTimber(player, !getTimber(player));
+            player.sendMessage("[§7Toggled Timber:" + (getTimber(player) ? "§a on" : "§4 off") + "§r]");
         }
         return true;
     }
 
-    public CommandToggle () {
-        playerStatus = new HashMap<>();
+    public boolean getTimber(Player player) {
+        if (!inMap(player)) {
+            setTimber(player, Boolean.TRUE);
+        }
+        return this.playerStatus.get(player);
     }
 
-    public boolean getTimber(Player player) {
-        return this.playerStatus.get(player.getName());
+    public void setTimber(Player player, Boolean enabled) {
+        this.playerStatus.put(player, enabled);
     }
-    public void setTimber(Player player, boolean enabled) {
-        this.playerStatus.put(player.getName(), enabled);
-    }
+
     public boolean inMap(Player player) {
-        return this.playerStatus.containsValue(player.getName());
+        return this.playerStatus.containsKey(player);
     }
 }

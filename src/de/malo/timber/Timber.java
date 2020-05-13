@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -29,11 +28,12 @@ import static java.lang.Math.*;
 public class Timber extends JavaPlugin implements Listener {
 
     static boolean withWorldGuard;
-    static CommandToggle toggle = new CommandToggle();
+    static CommandToggle toggle;
 
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
+
         // checks if WorldGuard is installed
         // Todo: make this work without WorldGuard
         WorldGuardPlugin worldGuard = getWorldGuard();
@@ -53,15 +53,11 @@ public class Timber extends JavaPlugin implements Listener {
         config.options().copyDefaults(true);
         saveConfig();
 
+        // add player tracking
+        toggle = new CommandToggle();
+
         // regestering command
         this.getCommand("toggletimber").setExecutor(new CommandToggle());
-    }
-
-    @EventHandler
-    private void onPlayerJoin(PlayerJoinEvent e) {
-        if (!toggle.inMap(e.getPlayer())) {
-            toggle.setTimber(e.getPlayer(), true);
-        }
     }
 
     @EventHandler
