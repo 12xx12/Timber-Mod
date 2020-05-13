@@ -20,6 +20,7 @@ import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import static java.lang.Math.*;
 public class Timber extends JavaPlugin implements Listener {
 
     static boolean withWorldGuard;
+    public HashMap<Player, Boolean> playerStatus;
     static CommandToggle toggle;
 
     @Override
@@ -54,10 +56,11 @@ public class Timber extends JavaPlugin implements Listener {
         saveConfig();
 
         // add player tracking
-        toggle = new CommandToggle();
+        playerStatus = new HashMap<>();
+        toggle = new CommandToggle(playerStatus);
 
         // regestering command
-        this.getCommand("toggletimber").setExecutor(new CommandToggle());
+        this.getCommand("toggletimber").setExecutor(new CommandToggle(playerStatus));
     }
 
     @EventHandler
@@ -74,8 +77,6 @@ public class Timber extends JavaPlugin implements Listener {
             // if no WorldGuard is installed set to permanent true
             canBuild = true;
         }
-        getLogger().info(String.valueOf(toggle.getTimber(e.getPlayer())));
-        e.getPlayer().sendMessage(toggle.getPlayerStatus().toString());
         if (!e.getPlayer().isSneaking() && canBuild)
             if (e.getPlayer().hasPermission("timber.use"))
                 if (toggle.getTimber(e.getPlayer()) == Boolean.TRUE)

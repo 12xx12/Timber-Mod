@@ -10,10 +10,10 @@ import java.util.HashMap;
 
 public class CommandToggle implements CommandExecutor {
 
-    private HashMap<Player, Boolean> playerStatus;
+    public HashMap<Player, Boolean> playerStatus;
 
-    public CommandToggle() {
-        this.playerStatus = new HashMap<>();
+    public CommandToggle(HashMap<Player, Boolean> map) {
+        playerStatus = map;
     }
 
     @Override
@@ -21,7 +21,6 @@ public class CommandToggle implements CommandExecutor {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             setTimber(player, getTimber(player) ? Boolean.FALSE : Boolean.TRUE);
-            player.sendMessage("[§7Toggled Timber:" + (getTimber(player) ? "§a on" : "§4 off") + "§r]");
         }
         return true;
     }
@@ -30,7 +29,6 @@ public class CommandToggle implements CommandExecutor {
         if (!inMap(player)) {
             setTimber(player, Boolean.TRUE);
         }
-        player.sendMessage(this.playerStatus.toString());
         return this.playerStatus.get(player);
     }
 
@@ -39,7 +37,7 @@ public class CommandToggle implements CommandExecutor {
     }
 
     public boolean inMap(Player player) {
-        player.sendMessage("is in map: " + this.playerStatus.containsKey(player));
+        return this.playerStatus.containsKey(player);
     }
 
     public HashMap<Player, Boolean> getPlayerStatus() {
