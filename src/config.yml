@@ -6,9 +6,11 @@
 #        xx        xx    xx        xx    xx   xx    xx        xx xx
 #        xx        xx    xx        xx    xx   xx    xx        xx  xx
 #        xx        xx    xx        xx    xxxxxx     xxxxxx    xx   xx
-#
+#                                                                       by 12xx12
 
-# Not much to do here.
 # This sets the distance between the checked block
 # and the originally mined block
 maxChop: 8
+
+# This enables the logging feature if you are interested
+logging: false

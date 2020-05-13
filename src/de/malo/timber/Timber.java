@@ -20,7 +20,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
@@ -51,6 +50,7 @@ public class Timber extends JavaPlugin implements Listener {
         FileConfiguration config = this.getConfig();
         // Todo: add toggle for logging
         config.addDefault("maxChop", 8);
+        config.addDefault("logging", false);
         config.options().copyDefaults(true);
         saveConfig();
     }
@@ -87,9 +87,9 @@ public class Timber extends JavaPlugin implements Listener {
      */
     private void dropTree(final @NotNull Location location, final Player player) {
         List<Block> checkedBlocks = new LinkedList<>();
-
         Location origin = location.clone();
         Location leaveLocation = location.clone();
+
         List<Block> blocks = leaveDrop(leaveLocation, origin, checkedBlocks);
 
         for (Block block : blocks) {
@@ -98,7 +98,11 @@ public class Timber extends JavaPlugin implements Listener {
         damageItem(player.getInventory().getItemInMainHand(), blocks.size());
         player.updateInventory();
 
-        //Todo: add logger functionality
+        // logging section
+        if (getConfig().getBoolean("logging")) {
+            getLogger().info("Player " + player.getName() + " broke " + (blocks.size()) +
+                    " blocks at [" + origin.getBlockX() + ", " + origin.getBlockY() + ", " + origin.getBlockZ() + "]");
+        }
     }
 
     /**
@@ -122,7 +126,8 @@ public class Timber extends JavaPlugin implements Listener {
                     if (!(checkedBlocks.contains(dest.getBlock()))) {
                         checkedBlocks.add(dest.clone().getBlock()); // adds to already checked blocks
                         if (isLog(dest.getBlock().getType()) && distance(location, origin) < border) {
-                            breakBlogs.add(dest.clone().getBlock()); // adds to blocks to break
+                            if (!(breakBlogs.contains(dest.getBlock())))
+                                breakBlogs.add(dest.clone().getBlock()); // adds to blocks to break if not already added
                             breakBlogs.addAll(leaveDrop(dest, origin, checkedBlocks));
                         }
                     }
@@ -136,7 +141,7 @@ public class Timber extends JavaPlugin implements Listener {
      * returns the WorldGuard plugin to use
      *
      * @return the WorldGuard Plugin
-     * @author MaLo
+     * @author Marc
      * @since 2020-05-05
      **/
     public WorldGuardPlugin getWorldGuard() {
@@ -226,13 +231,14 @@ public class Timber extends JavaPlugin implements Listener {
      * @since 2020-05-05
      */
     private @NotNull ItemStack damageItem(@NotNull ItemStack item, int damage) {
+        // Todo: change damaging behaviour to iterative design to assure good destruction behaviour
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
-        // checks for unbraking and respects it in the damage value
-        if (item.containsEnchantment(Enchantment.DURABILITY)) {
+        // checks for unbreaking and respects it in the damage value
+        if (item.containsEnchantment(Enchantment.DURABILITY))
             damage = (int) round(damage * (1.0 / (item.getEnchantmentLevel(Enchantment.DURABILITY) + 1)));
-        }
         im.setDamage(im.getDamage() + damage);
-        if (im.getDamage() <= item.getType().getMaxDurability()) {
+        if (item.getType().getMaxDurability() - im.getDamage() <= 0) {
+            getLogger().info("Damage on tool: " + im.getDamage());
             // todo: add destruction behaviour
         } else {
             item.setItemMeta((org.bukkit.inventory.meta.ItemMeta) im);
