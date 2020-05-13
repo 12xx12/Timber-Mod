@@ -216,7 +216,7 @@ public class Timber extends JavaPlugin implements Listener {
      */
     private int distance(@NotNull Location pos1, @NotNull Location pos2) {
         int dis = (int) round(sqrt(pow(pos1.getBlockX() - pos2.getBlockX(), 2) + pow(pos1.getBlockZ() - pos2.getBlockZ(), 2)));
-        dis += round(abs(pos1.getBlockY() - pos2.getBlockY()) / 8.0);
+        dis = (int) round(sqrt(pow((pos1.getBlockY() - pos2.getBlockY()) / 8.0, 2) + pow(dis, 2)));
         return dis;
     }
 
