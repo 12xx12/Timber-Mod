@@ -7,9 +7,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -94,7 +92,7 @@ public class Timber extends JavaPlugin implements Listener {
         for (Block block : blocks) {
             block.breakNaturally(player.getInventory().getItemInMainHand());
         }
-        damageItem(player.getInventory().getItemInMainHand(), blocks.size());
+        player.getInventory().setItemInMainHand(damageItem(player.getInventory().getItemInMainHand(), player, blocks.size()));
         player.updateInventory();
 
         // logging section
@@ -229,18 +227,24 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private @NotNull ItemStack damageItem(@NotNull ItemStack item, int damage) {
+    private @NotNull ItemStack damageItem(@NotNull ItemStack item, Player player, int damage) {
         // Todo: change damaging behaviour to iterative design to assure good destruction behaviour
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
         // checks for unbreaking and respects it in the damage value
         if (item.containsEnchantment(Enchantment.DURABILITY))
             damage = (int) round(damage * (1.0 / (item.getEnchantmentLevel(Enchantment.DURABILITY) + 1)));
-        im.setDamage(im.getDamage() + damage);
-        if (item.getType().getMaxDurability() - im.getDamage() <= 0) {
+
+        for (int i = 0; i <= damage; i++) {
+            im.setDamage(im.getDamage() + 1);
             getLogger().info("Damage on tool: " + im.getDamage());
-            // todo: add destruction behaviour
-        } else {
             item.setItemMeta((org.bukkit.inventory.meta.ItemMeta) im);
+        }
+        if (item.getType().getMaxDurability() - im.getDamage() <= 0) {
+            getLogger().info("Tool should be destructed");
+            item.setType(Material.AIR);
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
+            player.spawnParticle(Particle.ITEM_CRACK, player.getLocation(), 1, 0,0,0,
+                    player.getInventory().getItemInMainHand());
         }
         return item;
     }
