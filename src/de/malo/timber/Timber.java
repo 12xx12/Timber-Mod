@@ -76,15 +76,17 @@ public class Timber extends JavaPlugin implements Listener {
     /**
      * Drops the tree at the given location
      *
+     * @param location location of the block destroyed
+     * @param player   player who chopped the tree
      * @author Marc
      * @since 2020-05-05
      */
     private void dropTree(final Location location, final Player player) {
-        List<Block> checkedLeaves = new LinkedList<>();
+        List<Block> checkedBlocks = new LinkedList<>();
 
         Location origin = location.clone();
         Location leaveLocation = location.clone();
-        List<Block> blocks = leaveDrop(leaveLocation, origin, checkedLeaves);
+        List<Block> blocks = leaveDrop(leaveLocation, origin, checkedBlocks);
 
         for (Block block : blocks) {
             block.breakNaturally(player.getInventory().getItemInMainHand());
@@ -101,23 +103,23 @@ public class Timber extends JavaPlugin implements Listener {
      *
      * @param location      location of the
      * @param origin        block which was already mined
-     * @param checkedLeaves leaves already checked
+     * @param checkedBlocks leaves already checked
      * @return list of blocks to break
      * @author Marc
      * @since 2020-05-05
      */
-    private List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedLeaves) {
+    private List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedBlocks) {
         List<Block> breakBlogs = new LinkedList<>(); // list returned with the blocks to break
         final float border = getConfig().getInt("maxChop"); // maximum distance to original broken block
         for (int x = -1; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
                     Location dest = location.getBlock().getRelative(x, y, z).getLocation();
-                    if (!(checkedLeaves.contains(dest.getBlock()))) {
-                        checkedLeaves.add(dest.clone().getBlock()); // adds to already checked blocks
+                    if (!(checkedBlocks.contains(dest.getBlock()))) {
+                        checkedBlocks.add(dest.clone().getBlock()); // adds to already checked blocks
                         if (isLog(dest.getBlock().getType()) && distance(location, origin) < border) {
                             breakBlogs.add(dest.clone().getBlock()); // adds to blocks to break
-                            breakBlogs.addAll(leaveDrop(dest, origin, checkedLeaves));
+                            breakBlogs.addAll(leaveDrop(dest, origin, checkedBlocks));
                         }
                     }
                 }
