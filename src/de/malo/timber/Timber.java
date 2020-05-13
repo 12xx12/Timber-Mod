@@ -34,9 +34,7 @@ public class Timber extends JavaPlugin implements Listener {
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        // checks if WorldGuard is installed
-        // Todo: make this work without WorldGuard
-
+        // checks if WorldGuard is installed and disables functionality if installed
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             getLogger().info("using no WorldGuard");
             withWorldGuard = false;
