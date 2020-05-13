@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +29,7 @@ import static java.lang.Math.*;
 public class Timber extends JavaPlugin implements Listener {
 
     static boolean withWorldGuard;
+    static CommandToggle toggle = new CommandToggle();
 
     @Override
     public void onEnable() {
@@ -56,6 +58,13 @@ public class Timber extends JavaPlugin implements Listener {
     }
 
     @EventHandler
+    private void onPlayerJoin(PlayerJoinEvent e) {
+        if (!toggle.inMap(e.getPlayer())) {
+            toggle.setTimber(e.getPlayer(), true);
+        }
+    }
+
+    @EventHandler
     private void onBlockBreak(BlockBreakEvent e) {
         boolean canBuild;
         // checks if targeted block is buildable
@@ -71,9 +80,10 @@ public class Timber extends JavaPlugin implements Listener {
         }
         if (!e.getPlayer().isSneaking() && canBuild)
             if (e.getPlayer().hasPermission("timber.use"))
-                if (isAxe(e.getPlayer().getInventory().getItemInMainHand()))
-                    if (isLog(e.getBlock().getType()))
-                        dropTree(e.getBlock().getLocation(), e.getPlayer());
+                if (toggle.getTimber(e.getPlayer()))
+                    if (isAxe(e.getPlayer().getInventory().getItemInMainHand()))
+                        if (isLog(e.getBlock().getType()))
+                            dropTree(e.getBlock().getLocation(), e.getPlayer());
 
     }
 
