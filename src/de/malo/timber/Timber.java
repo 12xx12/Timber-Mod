@@ -66,24 +66,20 @@ public class Timber extends JavaPlugin implements Listener {
             canBuild = true;
         }
         if (!e.getPlayer().isSneaking() && canBuild)
-            if (e.get) {
+            if (e.getPlayer().hasPermission("timber.use"))
                 if (isAxe(e.getPlayer().getInventory().getItemInMainHand()))
                     if (isLog(e.getBlock().getType()))
                         dropTree(e.getBlock().getLocation(), e.getPlayer());
-            } else {
-                e.
-            }
 
     }
 
+    /**
+     * Drops the tree at the given location
+     *
+     * @author Marc
+     * @since 2020-05-05
+     */
     private void dropTree(final Location location, final Player player) {
-        /**
-         * Drops the tree at the given location
-         *
-         * @author Marc
-         * @version 2.0
-         * @since 2020-05-05
-         */
         List<Block> blocks = new LinkedList<>();
         List<Block> checkedLeaves = new LinkedList<>();
 
@@ -91,32 +87,28 @@ public class Timber extends JavaPlugin implements Listener {
         Location leaveLocation = location.clone();
         blocks.addAll(leaveDrop(leaveLocation, origin, checkedLeaves));
 
-        // org.bukkit.inventory.meta.Damageable tool = (org.bukkit.inventory.meta.Damageable) player.getInventory().getItemInMainHand().getItemMeta();
-
         for (Block block : blocks) {
             block.breakNaturally(player.getInventory().getItemInMainHand());
         }
         damageItem(player.getInventory().getItemInMainHand(), blocks.size());
-
         player.updateInventory();
-}
+    }
 
+    /**
+     * adds connected blocks to the removal list.
+     * checks surroundings for leaves and Logs and adds them
+     * Logs directly if connected to the original block and
+     * for leaves checks if is not part of another tree
+     *
+     * @author Marc
+     * @since 2020-05-05
+     *
+     * @param location location of the
+     * @param origin block which was already mined
+     * @param checkedLeaves leaves already checked
+     * @return list of blocks to break
+     */
     private List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedLeaves) {
-        /**
-         * adds connected blocks to the removal list.
-         * checks surroundings for leaves and Logs and adds them
-         * Logs directly if connected to the original block and
-         * for leaves checks if is not part of another tree
-         *
-         * @author Marc
-         * @version 2.0
-         * @since 2020-05-05
-         *
-         * @param location location of the
-         * @param origin block which was already mined
-         * @param checkedLeaves leaves already checked
-         * @return list of blocks to break
-         */
         List<Block> breakBlogs = new LinkedList<>(); // list returned with the blocks to break
         final float border = getConfig().getInt("maxChop"); // maximum distance to original broken block
         for (int x = -1; x <= 1; x++) {
@@ -136,22 +128,18 @@ public class Timber extends JavaPlugin implements Listener {
         return breakBlogs;
     }
 
+    /**
+     * returns the WorldGuard plugin to use
+     *
+     * @author MaLo
+     * @since 2020-05-05
+     **/
     public WorldGuardPlugin getWorldGuard() {
-        /**
-         * returns the WorldGuard plugin to use
-         *
-         * @author MaLo
-         * @version 1.0
-         * @since 2020-05-05
-         * */
         WorldGuardPlugin plugin;
         try {
             plugin = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
         } catch (UnknownDependencyException e) {
             plugin = null;
-        }
-        if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-            return null;
         }
         return plugin;
     }
@@ -198,19 +186,18 @@ public class Timber extends JavaPlugin implements Listener {
         return dis;
     }
 
+    /**
+     * damages the given item by the given value, respecting unbreaking.
+     *
+     * @author Marc
+     * @since 2020-05-05
+     *
+     * @param item - item to damage
+     * @param damage - damage to deal to item
+     *
+     * @return the damaged item
+     */
     private ItemStack damageItem(ItemStack item, int damage) {
-        /**
-         * damages the given item by the given value, respecting unbreaking.
-         *
-         * @author Marc
-         * @version 1.0
-         * @since 2020-05-05
-         *
-         * @param item - item to damage
-         * @param damage - damage to deal to item
-         *
-         * @return the damaged item
-         */
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
         // checks for unbraking and respects it in the damage value
         if (item.containsEnchantment(Enchantment.DURABILITY)) {
