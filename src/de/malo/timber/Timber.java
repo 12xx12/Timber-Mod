@@ -50,6 +50,9 @@ public class Timber extends JavaPlugin implements Listener {
         config.addDefault("logging", false);
         config.options().copyDefaults(true);
         saveConfig();
+
+        // regestering command
+        this.getCommand("toggletimber").setExecutor(new CommandToggle());
     }
 
     @EventHandler
@@ -243,7 +246,7 @@ public class Timber extends JavaPlugin implements Listener {
             getLogger().info("Tool should be destructed");
             item.setType(Material.AIR);
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
-            player.spawnParticle(Particle.ITEM_CRACK, player.getLocation(), 1, 0,0,0,
+            player.spawnParticle(Particle.ITEM_CRACK, player.getLocation(), 1, 0, 0, 0,
                     player.getInventory().getItemInMainHand());
         }
         return item;

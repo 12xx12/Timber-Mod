@@ -4,3 +4,8 @@ author: Marc
 main: de.malo.timber.Timber
 api-version: 1.15
 depend: [WorldGuard]
+
+commands:
+  toggletimber:
+    description: Toggle the timber function
+    usage: /toggletimber
