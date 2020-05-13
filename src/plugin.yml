@@ -5,8 +5,16 @@ main: de.malo.timber.Timber
 api-version: 1.15
 softdepend: [WorldGuard]
 
+permissions:
+  timber.*:
+    default: not op
+  timber.use:
+    default: not op
+  timber.toggle:
+    default: not op
 
 commands:
   toggletimber:
     description: Toggle the timber function
     usage: /toggletimber
+    permission: timber.toggle

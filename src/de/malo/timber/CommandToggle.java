@@ -18,9 +18,10 @@ public class CommandToggle implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-        if (sender instanceof Player) {
+        if (sender instanceof Player && sender.hasPermission("timber.toggle")) {
             Player player = (Player) sender;
             setTimber(player, getTimber(player) ? Boolean.FALSE : Boolean.TRUE);
+            player.sendMessage("[§7Toggled Timber:" + (getTimber(player) ? "§a on" : "§4 off") + "§r]");
         }
         return true;
     }
