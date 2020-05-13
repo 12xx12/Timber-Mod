@@ -3,7 +3,6 @@ package de.malo.timber;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
@@ -16,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,8 +27,8 @@ import static java.lang.Math.*;
 public class Timber extends JavaPlugin implements Listener {
 
     static boolean withWorldGuard;
-    private HashMap<Player, Boolean> playerStatus;
     static CommandToggle toggle;
+    private HashMap<Player, Boolean> playerStatus;
 
     @Override
     public void onEnable() {
@@ -38,13 +36,13 @@ public class Timber extends JavaPlugin implements Listener {
 
         // checks if WorldGuard is installed
         // Todo: make this work without WorldGuard
-        try {
-            Bukkit.getPluginManager().getPlugin("WorldGuard");
-            getLogger().info("using WorldGuard");
-            withWorldGuard = true;
-        } catch (UnknownDependencyException e) {
+
+        if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             getLogger().info("using no WorldGuard");
             withWorldGuard = false;
+        } else {
+            getLogger().info("using WorldGuard");
+            withWorldGuard = true;
         }
 
         // config stuff
@@ -68,7 +66,7 @@ public class Timber extends JavaPlugin implements Listener {
         boolean canBuild;
         // checks if targeted block is buildable
         if (withWorldGuard) {
-            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(e.getPlayer());
+            LocalPlayer localPlayer = com.sk89q.worldguard.bukkit.WorldGuardPlugin.inst().wrapPlayer(e.getPlayer());
             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionQuery query = container.createQuery();
             com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(e.getBlock().getLocation());
@@ -144,23 +142,6 @@ public class Timber extends JavaPlugin implements Listener {
             }
         }
         return breakBlogs;
-    }
-
-    /**
-     * returns the WorldGuard plugin to use
-     *
-     * @return the WorldGuard Plugin
-     * @author Marc
-     * @since 2020-05-05
-     **/
-    public WorldGuardPlugin getWorldGuard() {
-        WorldGuardPlugin plugin;
-        try {
-            plugin = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
-        } catch (UnknownDependencyException e) {
-            plugin = null;
-        }
-        return plugin;
     }
 
     /**
@@ -247,27 +228,14 @@ public class Timber extends JavaPlugin implements Listener {
 
         for (int i = 0; i <= damage; i++) {
             im.setDamage(im.getDamage() + 1);
-            getLogger().info("Damage on tool: " + im.getDamage());
             item.setItemMeta((org.bukkit.inventory.meta.ItemMeta) im);
         }
         if (item.getType().getMaxDurability() - im.getDamage() <= 0) {
-            getLogger().info("Tool should be destructed");
             item.setType(Material.AIR);
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
             player.spawnParticle(Particle.ITEM_CRACK, player.getLocation(), 1, 0, 0, 0,
                     player.getInventory().getItemInMainHand());
         }
         return item;
-    }
-}
-
-
-class myWorldGuard extends  JavaPlugin{
-    public myWorldGuard() {
-        try{
-            Bukkit.getPluginManager().getPlugin("WorldGuard");
-        } catch (UnknownDependencyException e) {
-            getLogger().info("lalala");
-        }
     }
 }

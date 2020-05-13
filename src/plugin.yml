@@ -1,9 +1,8 @@
 name: ImprovedTimber
 version: 1.0
-author: Marc
+author: MaLo
 main: de.malo.timber.Timber
 api-version: 1.15
-depend:
 softdepend: [WorldGuard]
 
 
