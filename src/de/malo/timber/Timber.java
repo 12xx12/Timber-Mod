@@ -80,12 +80,11 @@ public class Timber extends JavaPlugin implements Listener {
      * @since 2020-05-05
      */
     private void dropTree(final Location location, final Player player) {
-        List<Block> blocks = new LinkedList<>();
         List<Block> checkedLeaves = new LinkedList<>();
 
         Location origin = location.clone();
         Location leaveLocation = location.clone();
-        blocks.addAll(leaveDrop(leaveLocation, origin, checkedLeaves));
+        List<Block> blocks = leaveDrop(leaveLocation, origin, checkedLeaves);
 
         for (Block block : blocks) {
             block.breakNaturally(player.getInventory().getItemInMainHand());
@@ -100,13 +99,12 @@ public class Timber extends JavaPlugin implements Listener {
      * Logs directly if connected to the original block and
      * for leaves checks if is not part of another tree
      *
-     * @author Marc
-     * @since 2020-05-05
-     *
-     * @param location location of the
-     * @param origin block which was already mined
+     * @param location      location of the
+     * @param origin        block which was already mined
      * @param checkedLeaves leaves already checked
      * @return list of blocks to break
+     * @author Marc
+     * @since 2020-05-05
      */
     private List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedLeaves) {
         List<Block> breakBlogs = new LinkedList<>(); // list returned with the blocks to break
@@ -131,6 +129,7 @@ public class Timber extends JavaPlugin implements Listener {
     /**
      * returns the WorldGuard plugin to use
      *
+     * @return the WorldGuard Plugin
      * @author MaLo
      * @since 2020-05-05
      **/
@@ -179,23 +178,30 @@ public class Timber extends JavaPlugin implements Listener {
         return isLog;
     }
 
-    private int distance(Location location, Location origin) {
-        int dis;
-        dis = (int) round(sqrt(pow(location.getBlockX() - origin.getBlockX(), 2) + pow(location.getBlockZ() - origin.getBlockZ(), 2)));
-        dis += round(abs(location.getBlockY() - origin.getBlockY()) / 8.0);
+    /**
+     * returns the customised distance
+     * the y - position is less influential to the distance
+     *
+     * @param pos1 starting position of the distance
+     * @param pos2 ending position of the distance
+     * @return the distance betweent pos1 and pos2
+     * @author Marc
+     * @since 2020-05-13
+     */
+    private int distance(Location pos1, Location pos2) {
+        int dis = (int) round(sqrt(pow(pos1.getBlockX() - pos2.getBlockX(), 2) + pow(pos1.getBlockZ() - pos2.getBlockZ(), 2)));
+        dis += round(abs(pos1.getBlockY() - pos2.getBlockY()) / 8.0);
         return dis;
     }
 
     /**
      * damages the given item by the given value, respecting unbreaking.
      *
+     * @param item   - item to damage
+     * @param damage - damage to deal to item
+     * @return the damaged item
      * @author Marc
      * @since 2020-05-05
-     *
-     * @param item - item to damage
-     * @param damage - damage to deal to item
-     *
-     * @return the damaged item
      */
     private ItemStack damageItem(ItemStack item, int damage) {
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
@@ -205,7 +211,7 @@ public class Timber extends JavaPlugin implements Listener {
         }
         im.setDamage(im.getDamage() + damage);
         if (im.getDamage() <= item.getType().getMaxDurability()) {
-            item = null;
+            // todo: add destruction behaviour
         } else {
             item.setItemMeta((org.bukkit.inventory.meta.ItemMeta) im);
         }
