@@ -48,7 +48,6 @@ public class Timber extends JavaPlugin implements Listener {
         // config stuff
         this.saveDefaultConfig();
         FileConfiguration config = this.getConfig();
-        // Todo: add toggle for logging
         config.addDefault("maxChop", 8);
         config.addDefault("logging", false);
         config.options().copyDefaults(true);
