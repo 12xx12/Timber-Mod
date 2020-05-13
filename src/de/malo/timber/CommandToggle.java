@@ -20,7 +20,7 @@ public class CommandToggle implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            setTimber(player, !getTimber(player));
+            setTimber(player, getTimber(player) ? Boolean.FALSE : Boolean.TRUE);
             player.sendMessage("[§7Toggled Timber:" + (getTimber(player) ? "§a on" : "§4 off") + "§r]");
         }
         return true;
@@ -30,6 +30,7 @@ public class CommandToggle implements CommandExecutor {
         if (!inMap(player)) {
             setTimber(player, Boolean.TRUE);
         }
+        player.sendMessage(this.playerStatus.toString());
         return this.playerStatus.get(player);
     }
 
@@ -38,6 +39,10 @@ public class CommandToggle implements CommandExecutor {
     }
 
     public boolean inMap(Player player) {
-        return this.playerStatus.containsKey(player);
+        player.sendMessage("is in map: " + this.playerStatus.containsKey(player));
+    }
+
+    public HashMap<Player, Boolean> getPlayerStatus() {
+        return playerStatus;
     }
 }

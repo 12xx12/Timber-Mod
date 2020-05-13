@@ -74,9 +74,11 @@ public class Timber extends JavaPlugin implements Listener {
             // if no WorldGuard is installed set to permanent true
             canBuild = true;
         }
+        getLogger().info(String.valueOf(toggle.getTimber(e.getPlayer())));
+        e.getPlayer().sendMessage(toggle.getPlayerStatus().toString());
         if (!e.getPlayer().isSneaking() && canBuild)
             if (e.getPlayer().hasPermission("timber.use"))
-                if (toggle.getTimber(e.getPlayer()))
+                if (toggle.getTimber(e.getPlayer()) == Boolean.TRUE)
                     if (isAxe(e.getPlayer().getInventory().getItemInMainHand()))
                         if (isLog(e.getBlock().getType()))
                             dropTree(e.getBlock().getLocation(), e.getPlayer());
