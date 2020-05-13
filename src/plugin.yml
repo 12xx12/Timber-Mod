@@ -3,7 +3,9 @@ version: 1.0
 author: Marc
 main: de.malo.timber.Timber
 api-version: 1.15
-depend: [WorldGuard]
+depend:
+softdepend: [WorldGuard]
+
 
 commands:
   toggletimber:
