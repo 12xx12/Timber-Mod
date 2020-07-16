@@ -3,7 +3,7 @@ version: 2.0
 author: MaLo
 main: me.malo.timbermod.timber.Timber
 api-version: 1.16
-softdepend: [WorldGuard]
+depend: [WorldGuard]
 
 permissions:
   timber.*:

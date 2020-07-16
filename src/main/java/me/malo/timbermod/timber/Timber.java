@@ -3,7 +3,11 @@ package me.malo.timbermod.timber;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.Flags;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.*;
@@ -25,14 +29,13 @@ import static java.lang.Math.*;
 
 public class Timber extends JavaPlugin implements Listener {
 
+    public static StateFlag TIMBER_FLAG;
     static boolean withWorldGuard;
     static CommandToggle toggle;
     private HashMap<Player, Boolean> playerStatus;
 
     @Override
-    public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(this, this);
-
+    public void onLoad() {
         // checks if WorldGuard is installed and disables functionality if installed
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             getLogger().info("using no WorldGuard");
@@ -41,6 +44,33 @@ public class Timber extends JavaPlugin implements Listener {
             getLogger().info("using WorldGuard");
             withWorldGuard = true;
         }
+
+        if (withWorldGuard) {
+            // custom flag for timber usage
+            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+            try {
+                // create a flag with the name "my-custom-flag", defaulting to true
+                StateFlag flag = new StateFlag("Timber", true);
+                registry.register(flag);
+                TIMBER_FLAG = flag; // only set our field if there was no error
+            } catch (FlagConflictException e) {
+                // some other plugin registered a flag by the same name already.
+                // you can use the existing flag, but this may cause conflicts - be sure to check type
+                Flag<?> existing = registry.get("Timber");
+                if (existing instanceof StateFlag) {
+                    TIMBER_FLAG = (StateFlag) existing;
+                } else {
+                    getLogger().info("FATAL ERROR WITH FLAG REGISTRATION");
+                    // types don't match - this is bad news! some other plugin conflicts with you
+                    // hopefully this never actually happens
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onEnable() {
+        Bukkit.getPluginManager().registerEvents(this, this);
 
         // config stuff
         this.saveDefaultConfig();
@@ -67,6 +97,7 @@ public class Timber extends JavaPlugin implements Listener {
             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionQuery query = container.createQuery();
             canBuild = query.testState(BukkitAdapter.adapt(e.getBlock().getLocation()), localPlayer, Flags.BUILD);
+            canBuild = canBuild && query.testState(BukkitAdapter.adapt(e.getBlock().getLocation()), localPlayer, TIMBER_FLAG);
         } else {
             // if no WorldGuard is installed set to permanent true
             canBuild = true;
