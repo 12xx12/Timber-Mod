@@ -116,12 +116,13 @@ public class Timber extends JavaPlugin implements Listener {
     /**
      * Drops the tree at the given location
      *
+     * Edit 2020-07-16:     Removed unnecessary operation
+     *
      * @param location location of the block destroyed
      * @param player   player who chopped the tree
      * @author Marc
      * @since 2020-05-05
      *
-     * Edit 2020-07-16:     Removed unnecessary operation
      */
     private void dropTree(final Location location, final Player player) {
         List<Block> checkedBlocks = new LinkedList<>();
@@ -179,72 +180,44 @@ public class Timber extends JavaPlugin implements Listener {
     /**
      * determines if the given material is an axe
      *
+     * Edit:    2020-07-16      Added netherite Axe
+     * Edit:    2020-07-16      changed code to support future axe types
+     *
      * @param material the material to check
      * @return whether it is or not
      * @author Marc
      * @since 2020-05-05
-     *
-     * Edit 2020-07-16:     Added new Axe
      */
     private boolean isAxe(ItemStack material) {
-        boolean isAxe;
-        switch (material.getType()) {
-            case WOODEN_AXE:
-            case STONE_AXE:
-            case IRON_AXE:
-            case GOLDEN_AXE:
-            case DIAMOND_AXE:
-            case NETHERITE_AXE:
-                isAxe = true;
-                break;
-            default:
-                isAxe = false;
-                break;
-        }
-        return isAxe;
+        return material.toString().contains("AXE");
     }
 
     /**
      * determine is the given material is a log
      *
+     * Edit:    2020-07-16      Added warped and crimson stem Wood types
+     * Edit:    2020-07-16      changed logic to support future Wood types
+     *
      * @param material the material to check
      * @return whether it is or not
      * @author Marc
      * @since 2020-05-05
-     * <p>
-     * Edit: 2020-07-16     Added new Wood types
      */
     private boolean isLog(Material material) {
-        boolean isLog;
-        switch (material) {
-            case ACACIA_LOG:
-            case BIRCH_LOG:
-            case DARK_OAK_LOG:
-            case JUNGLE_LOG:
-            case OAK_LOG:
-            case SPRUCE_LOG:
-            case WARPED_STEM:
-            case CRIMSON_STEM:
-                isLog = true;
-                break;
-            default:
-                isLog = false;
-                break;
-        }
-        return isLog;
+        return material.toString().contains("LOG") || material.toString().contains("STEM");
     }
 
     /**
      * returns the customised distance
      * the y - position is less influential to the distance
      *
+     * Edit:    2020-07-16     some readability and logic cleanup
+     *
      * @param pos1 starting position of the distance
      * @param pos2 ending position of the distance
      * @return the distance between pos1 and pos2
      * @author Marc
      * @since 2020-05-13
-     * <p>
-     * Edit: 2020-07-16     some readability and logic cleanup
      */
     private int distance(Location pos1, Location pos2) {
         int dis = (int) round(sqrt(pow(pos2.getBlockX() - pos1.getBlockX(), 2) +
@@ -253,15 +226,15 @@ public class Timber extends JavaPlugin implements Listener {
     }
 
     /**
-     * damages the given item by the given value, respecting unbreaking.
+     * damages the given item by the given value, respecting the enchantment unbreaking.
+     *
+     * Edit:    2020-07-16     Added comments and removed unnecessary for loop
      *
      * @param item   - item to damage
      * @param damage - damage to deal to item
      * @return the damaged item
      * @author Marc
      * @since 2020-05-05
-     *
-     * Edit: 2020-07-16     Added comments and removed unnecessary for loop
      */
     private ItemStack damageItem(ItemStack item, Player player, int damage) {
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
