@@ -7,11 +7,11 @@ softdepend: [WorldGuard]
 
 permissions:
   timber.*:
-    default: not op
+    default: true
   timber.use:
-    default: not op
+    default: true
   timber.toggle:
-    default: not op
+    default: true
 
 commands:
   toggletimber:

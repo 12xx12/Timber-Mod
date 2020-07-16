@@ -66,8 +66,7 @@ public class Timber extends JavaPlugin implements Listener {
             LocalPlayer localPlayer = com.sk89q.worldguard.bukkit.WorldGuardPlugin.inst().wrapPlayer(e.getPlayer());
             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionQuery query = container.createQuery();
-            com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(e.getBlock().getLocation());
-            canBuild = query.testState(loc, localPlayer, Flags.BUILD);
+            canBuild = query.testState(BukkitAdapter.adapt(e.getBlock().getLocation()), localPlayer, Flags.BUILD);
         } else {
             // if no WorldGuard is installed set to permanent true
             canBuild = true;
