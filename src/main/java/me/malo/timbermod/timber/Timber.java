@@ -16,7 +16,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -90,7 +89,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private void dropTree(final @NotNull Location location, final Player player) {
+    private void dropTree(final Location location, final Player player) {
         List<Block> checkedBlocks = new LinkedList<>();
         Location origin = location.clone();
         Location leaveLocation = location.clone();
@@ -121,7 +120,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private @NotNull List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedBlocks) {
+    private List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedBlocks) {
         List<Block> breakBlogs = new LinkedList<>(); // list returned with the blocks to break
         final float border = getConfig().getInt("maxChop"); // maximum distance to original broken block
         for (int x = -1; x <= 1; x++) {
@@ -150,7 +149,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private boolean isAxe(@NotNull ItemStack material) {
+    private boolean isAxe(ItemStack material) {
         boolean isAxe;
         switch (material.getType()) {
             case WOODEN_AXE:
@@ -175,7 +174,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private boolean isLog(@NotNull Material material) {
+    private boolean isLog(Material material) {
         boolean isLog;
         switch (material) {
             case ACACIA_LOG:
@@ -205,7 +204,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-13
      */
-    private int distance(@NotNull Location pos1, @NotNull Location pos2) {
+    private int distance(Location pos1, Location pos2) {
         int dis = (int) round(sqrt(pow(pos1.getBlockX() - pos2.getBlockX(), 2) + pow(pos1.getBlockZ() - pos2.getBlockZ(), 2)));
         dis = (int) round(sqrt(pow((pos1.getBlockY() - pos2.getBlockY()) / 8.0, 2) + pow(dis, 2)));
         return dis;
@@ -220,7 +219,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private @NotNull ItemStack damageItem(@NotNull ItemStack item, Player player, int damage) {
+    private ItemStack damageItem(ItemStack item, Player player, int damage) {
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
         // checks for unbreaking and respects it in the damage value
         if (item.containsEnchantment(Enchantment.DURABILITY))
