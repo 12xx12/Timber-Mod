@@ -49,20 +49,15 @@ public class Timber extends JavaPlugin implements Listener {
             // custom flag for timber usage
             FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
             try {
-                // create a flag with the name "my-custom-flag", defaulting to true
                 StateFlag flag = new StateFlag("Timber", true);
                 registry.register(flag);
-                TIMBER_FLAG = flag; // only set our field if there was no error
+                TIMBER_FLAG = flag;
             } catch (FlagConflictException e) {
-                // some other plugin registered a flag by the same name already.
-                // you can use the existing flag, but this may cause conflicts - be sure to check type
                 Flag<?> existing = registry.get("Timber");
                 if (existing instanceof StateFlag) {
                     TIMBER_FLAG = (StateFlag) existing;
                 } else {
                     getLogger().info("FATAL ERROR WITH FLAG REGISTRATION");
-                    // types don't match - this is bad news! some other plugin conflicts with you
-                    // hopefully this never actually happens
                 }
             }
         }
@@ -85,9 +80,16 @@ public class Timber extends JavaPlugin implements Listener {
         toggle = new CommandToggle(playerStatus);
 
         // regestering command
-        this.getCommand("toggletimber").setExecutor(new CommandToggle(playerStatus));
+        try {
+            this.getCommand("toggletimber").setExecutor(new CommandToggle(playerStatus));
+        } catch (NullPointerException e) {
+            getLogger().info(e.getMessage());
+        }
     }
 
+    /**
+     * Edit: 2020-07-16     Added support for the region flag
+     */
     @EventHandler
     private void onBlockBreak(BlockBreakEvent e) {
         boolean canBuild;
@@ -118,24 +120,26 @@ public class Timber extends JavaPlugin implements Listener {
      * @param player   player who chopped the tree
      * @author Marc
      * @since 2020-05-05
+     *
+     * Edit 2020-07-16:     Removed unnecessary operation
      */
     private void dropTree(final Location location, final Player player) {
         List<Block> checkedBlocks = new LinkedList<>();
-        Location origin = location.clone();
         Location leaveLocation = location.clone();
 
-        List<Block> blocks = leaveDrop(leaveLocation, origin, checkedBlocks);
+        List<Block> blocks = leaveDrop(leaveLocation, location, checkedBlocks);
 
         for (Block block : blocks) {
             block.breakNaturally(player.getInventory().getItemInMainHand());
         }
+
         player.getInventory().setItemInMainHand(damageItem(player.getInventory().getItemInMainHand(), player, blocks.size()));
         player.updateInventory();
 
         // logging section
         if (getConfig().getBoolean("logging")) {
             getLogger().info("Player " + player.getName() + " broke " + (blocks.size()) +
-                    " blocks at [" + origin.getBlockX() + ", " + origin.getBlockY() + ", " + origin.getBlockZ() + "]");
+                    " blocks at [" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]");
         }
     }
 
@@ -153,6 +157,7 @@ public class Timber extends JavaPlugin implements Listener {
     private List<Block> leaveDrop(Location location, final Location origin, List<Block> checkedBlocks) {
         List<Block> breakBlogs = new LinkedList<>(); // list returned with the blocks to break
         final float border = getConfig().getInt("maxChop"); // maximum distance to original broken block
+
         for (int x = -1; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
@@ -178,6 +183,8 @@ public class Timber extends JavaPlugin implements Listener {
      * @return whether it is or not
      * @author Marc
      * @since 2020-05-05
+     *
+     * Edit 2020-07-16:     Added new Axe
      */
     private boolean isAxe(ItemStack material) {
         boolean isAxe;
@@ -187,6 +194,7 @@ public class Timber extends JavaPlugin implements Listener {
             case IRON_AXE:
             case GOLDEN_AXE:
             case DIAMOND_AXE:
+            case NETHERITE_AXE:
                 isAxe = true;
                 break;
             default:
@@ -203,6 +211,8 @@ public class Timber extends JavaPlugin implements Listener {
      * @return whether it is or not
      * @author Marc
      * @since 2020-05-05
+     * <p>
+     * Edit: 2020-07-16     Added new Wood types
      */
     private boolean isLog(Material material) {
         boolean isLog;
@@ -233,11 +243,13 @@ public class Timber extends JavaPlugin implements Listener {
      * @return the distance between pos1 and pos2
      * @author Marc
      * @since 2020-05-13
+     * <p>
+     * Edit: 2020-07-16     some readability and logic cleanup
      */
     private int distance(Location pos1, Location pos2) {
-        int dis = (int) round(sqrt(pow(pos1.getBlockX() - pos2.getBlockX(), 2) + pow(pos1.getBlockZ() - pos2.getBlockZ(), 2)));
-        dis = (int) round(sqrt(pow((pos1.getBlockY() - pos2.getBlockY()) / 8.0, 2) + pow(dis, 2)));
-        return dis;
+        int dis = (int) round(sqrt(pow(pos2.getBlockX() - pos1.getBlockX(), 2) +
+                                   pow(pos2.getBlockZ() - pos1.getBlockZ(), 2)));
+        return (int) round(sqrt(pow((pos2.getBlockY() - pos1.getBlockY()) / 8.0, 2) + pow(dis, 2)));
     }
 
     /**
@@ -248,6 +260,8 @@ public class Timber extends JavaPlugin implements Listener {
      * @return the damaged item
      * @author Marc
      * @since 2020-05-05
+     *
+     * Edit: 2020-07-16     Added comments and removed unnecessary for loop
      */
     private ItemStack damageItem(ItemStack item, Player player, int damage) {
         org.bukkit.inventory.meta.Damageable im = (org.bukkit.inventory.meta.Damageable) item.getItemMeta();
@@ -255,12 +269,14 @@ public class Timber extends JavaPlugin implements Listener {
         if (item.containsEnchantment(Enchantment.DURABILITY))
             damage = (int) round(damage * (1.0 / (item.getEnchantmentLevel(Enchantment.DURABILITY) + 1)));
 
-        for (int i = 0; i <= damage; i++) {
-            im.setDamage(im.getDamage() + 1);
-            item.setItemMeta((org.bukkit.inventory.meta.ItemMeta) im);
-        }
+        im.setDamage(im.getDamage() + damage);
+        item.setItemMeta((org.bukkit.inventory.meta.ItemMeta) im);
+
+        // removes item if item would break
         if (item.getType().getMaxDurability() - im.getDamage() <= 0) {
             item.setType(Material.AIR);
+
+            // some special effects
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1F, 1F);
             player.spawnParticle(Particle.ITEM_CRACK, player.getLocation(), 1, 0, 0, 0,
                     player.getInventory().getItemInMainHand());
