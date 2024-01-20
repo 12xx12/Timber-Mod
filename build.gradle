@@ -1,0 +1,27 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'me.malo.Timber-Mod'
+version = '1.0'
+
+description = """Timber"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+
+
+repositories {
+        
+     maven { url "https://maven.enginehub.org/repo/" }
+     maven { url "https://papermc.io/repo/repository/maven-releases/" }
+     maven { url "https://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'io.papermc', name: 'paperlib', version:'1.0.8'
+    compileOnly group: 'com.sk89q.worldedit', name: 'worldedit-bukkit', version:'7.2.18'
+    compileOnly group: 'com.sk89q.worldguard', name: 'worldguard-bukkit', version:'7.0.9'
+}
