@@ -203,7 +203,7 @@ public class Timber extends JavaPlugin implements Listener {
      * @author Marc
      * @since 2020-05-05
      */
-    private boolean isLog(Material material) {
+    private boolean isLog||isStem(Material material) {
         return material.toString().contains("LOG") || material.toString().contains("STEM");
     }
 
